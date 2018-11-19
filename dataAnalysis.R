@@ -12,11 +12,11 @@
 # Basic Operations																																	#
 #-----------------------------------------------------------------------------------#
 
-# Setting up workspace
+# Setting up working directory/workspace
 getwd()
 
 # Help - ?function (lookup in documentation) or ??function (online)
-?setwd
+?setwd 	# Workspace can also be set via Files viewer --> "More"
 
 # Operations, variables, and Vectors (atomic vectors, lists)
 4+6
@@ -43,10 +43,14 @@ str(j)
 # Sampling and list-apply
 ?sample
 k <- sample(1:20, size = 4, replace = FALSE)
-l <- sample(c(0,1), size = 10, replace = TRUE, prob = c(0.1,0.9))
+
+sample(c(0,1), size = 10, replace = TRUE, prob = c(0.5,0.5))
+sample(c(0,1), size = 10, replace = TRUE, prob = c(0.1,0.9))
 
 m <- c(4,16,64)
 n <- sapply(m, FUN = sqrt)		# Executes a function (FUN) for each element of a vector/list
+n
+
 lapply(m, FUN = sqrt)
 sapply(c(4,-16,64), FUN = abs)
 
@@ -72,9 +76,9 @@ m5
 
 # Environment commands
 ls() 													# A list of all the objects in the workspace
-rm(m5)
+rm(a)
 ls()
-rm(list = ls()) 							# removes all workspace objects - clears memory
+rm(list = ls()) 							# Removes all workspace objects, i.e. clears memory
 
 # Data frame and data import
 sampleData <- read.csv("sampleData.csv") # read.table if reading from a .txt file
@@ -122,9 +126,13 @@ tapply(sampleData$trip_length_km, sampleData$region_typ, sum)		# Sum of trip len
 
 # Example: Compute average trip length by income category
 summary(sampleData$hh_income)
+
+ncol(sampleData)
 sampleData$income_cat <- cut(sampleData$hh_income,                  # Add column with dataset$new-column
 														 breaks = c(seq(0,5000,by=2500),10000), # What will the breaks be?
 														 labels = c("low", "medium", "high")) 	# What ranges does each level cover?
+ncol(sampleData)
+
 str(sampleData$income_cat)
 summary(sampleData$income_cat)
 sum(is.na(sampleData$income_cat)==TRUE)															# Check if there are any N/A values
@@ -183,14 +191,25 @@ attach(sampleData)	# Makes sampleData available in global environment, i.e. its
  										# columns/rows can be accessed directly; use sparingly
 search()
 
-hist(hh_income, main = "Frequency distribution: Household income", xlab = "Montly household income (Euro)")
-hist(trip_length_km, main = "Frequency distribution: Distance to work", xlab = "Distance from home to work location (km)")
-hist(dist_to_transit, main = "Frequency distribution: Distance to transit", xlab = "Distance from home location to nearest transit stop (km)")
+hist(hh_income,
+		 main = "Frequency distribution: Household income",
+		 xlab = "Montly household income (Euro)")
+
+hist(trip_length_km,
+		 main = "Frequency distribution: Distance to work",
+		 xlab = "Distance from home to work location (km)")
+
+hist(dist_to_transit,
+		 main = "Frequency distribution: Distance to transit",
+		 xlab = "Distance from home location to nearest transit stop (km)")
+
 par(mfrow = c(2,2))
-boxplot(dist_to_transit, horizontal = TRUE, main = "Boxplot: Distance to transit", xlab = "Distance from home location to nearest transit stop (km)")
+boxplot(dist_to_transit, horizontal = TRUE)
 plot(region_type)
 plot(hh_size)
 plot(income_cat)
+
+par(mfrow = c(1,1)) # Reset graph grid
 
 # Libraries are add-on packages of code that others have pre-written for a specific purpose
 # If necessary install via code:		install.packages("ggplot2")			
@@ -284,5 +303,6 @@ summary(regressionFit6)
 # Save predictions of a model in a new data frame together with variables you want to plot against
 predicted_df <- data.frame(hh_autos_pred = predict(regressionFit6, sampleData),
 													 hh_size=sampleData$hh_size,
-													 hh_income=sampleData$hh_income)
+													 hh_income=sampleData$hh_income,
+													 n_emp=sampleData$n_emp)
 head(predicted_df)
