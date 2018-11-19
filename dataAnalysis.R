@@ -1,65 +1,95 @@
 
-######################################################################################################
-############# ---------------- INTRODUCTION TO DATA ANALYSIS WITH R ----------------- ################
-######################################################################################################
+#####################################################################################
+# INTRODUCTION INTO R - DATA ANALYSIS																								#
+#-----------------------------------------------------------------------------------#
+# 19. November 2018																																	#
+#																																										#
+# Raoul Rothfeld																																		#
+# Based on Material from Hema Sharanya Rayaprolu																		#
+#####################################################################################
 
-
-####### ----------------- IMPORTING DATA INTO R ---------------------- ########
-
+#-----------------------------------------------------------------------------------#
+# Basic Operations																																	#
+#-----------------------------------------------------------------------------------#
 
 # Setting up workspace
 getwd()
-setwd("/Users/rm/Documents/teaching/2017WS/travelBehavior/exercise/hema_dataAnalysis")
 
-# Help - ?function
+# Help - ?function (lookup in documentation) or ??function (online)
 ?setwd
 
-# Vectors (atomic vectors, lists)
+# Operations, variables, and Vectors (atomic vectors, lists)
 4+6
-a <- 5+7
+a <- 5+7											# Store results in variables
 b <- 1:20
-c <- seq(0 ,20, by = 2) # Gives a sequence of numbers from 0 to 20 incremented by 2
-d <- seq(0, 10, length = 30) # Gives 30 equidistant numbers between 0 and 10
-e <- rep(1,times = 5)
-f <- c(1,5,6,8.5,1,4)  # c is short for concatenate; integers are converted to real numbers if one of the values is real (makes it an "atomic vector")
-g <- rep(f, times=2)
-h <- rep(c(0,1,2), each=2)  # repeats each value twice
+c <- seq(0, 20,  by = 2) 			# Returns sequence of numbers from 0 to 20 incremented by 2
+d <- seq(0, 10, length = 5) 	# Returns 5 equidistant numbers between 0 and 10
+e <- rep(1, times = 5)				# Five times repetition of number 1
+
+f <- c(1,5,6,8.5)  						# Returns an atomic (homogenous) vector, despite input of
+															# integer and double numbers; c is short for concatenate
+															# or combine
+
+c(1,5,"6",8.5)								# What kind of atomic vector will be returned?
+
+g <- rep(f, times = 2)				# Access values via variables
+h <- rep(f, each = 2) 				# Repeats each value twice
+
 i <- c("one","two","three")
-j <- c(TRUE, FALSE, TRUE, FALSE, FALSE)
-str(j)  # get the data structure of j
-k <- sample(1:20, size = 4, replace = FALSE)
+str(i)												# Returns the structure of a variable/object
+j <- list(TRUE, FALSE, TRUE)
+str(j)
+
+# Sampling and list-apply
 ?sample
-l <- sample(c(0,1), size = 10, replace = TRUE, prob = c(0.3,0.7))
-m <- sapply(c(4,16,64), FUN = sqrt, simplify = TRUE) # try with lapply (list apply, remove simplify=TRUE) and vapply (data type is specified by user)
-sapply(c(4,16,64), FUN = sqrt)
-class(sapply(c(4,16,64), FUN = sqrt))
-lapply(c(4,16,64), FUN = sqrt)
-class(lapply(c(4,16,64), FUN = sqrt))
+k <- sample(1:20, size = 4, replace = FALSE)
+l <- sample(c(0,1), size = 10, replace = TRUE, prob = c(0.1,0.9))
+
+m <- c(4,16,64)
+n <- sapply(m, FUN = sqrt)		# Executes a function (FUN) for each element of a vector/list
+lapply(m, FUN = sqrt)
+sapply(c(4,-16,64), FUN = abs)
 
 # Matrices
 ?matrix
 m1 <- matrix(data = 1:20, nrow = 4, ncol = 5)
+m1
+
 m2 <- rep(1, times=4)
-m3 <- cbind(m1, m2) # column-bind
+m2
+
+m3 <- cbind(m1, m2) 					# Column-bind
+m3
+
 colnames(m3) <- c("one","two","three","four","five","six")
 m3
 
-m4 <- matrix(data = 1:20, nrow = 4, ncol = 5)
-m5 <- rbind(m1,m4) # row-bind
+m4 <- matrix(data = 21:40, nrow = 4, ncol = 5)
+m4
 
+m5 <- rbind(m1,m4) 						# Row-bind
+m5
 
-ls() # A list of all the objects in the workspace
+# Environment commands
+ls() 													# A list of all the objects in the workspace
 rm(m5)
 ls()
-rm(list = ls()) # removes all workspace objects - clears memory
+rm(list = ls()) 							# removes all workspace objects - clears memory
 
-# Data frame
-# TODO IMPORT
-sampleData <- read.csv("DataSample_Introduction.csv") # read.table if reading from a .txt file
+# Data frame and data import
+sampleData <- read.csv("sampleData.csv") # read.table if reading from a .txt file
 class(sampleData)
 
+# Hint: Use RStudio'S "Import Dataset" function if you are unsure how to import a file
 
-####### ----------------- EXPLORING DATA ---------------------- ########
+# Data export
+write.csv(sampleData, file = "output.csv")
+
+
+#-----------------------------------------------------------------------------------#
+# Exploring Data																																		#
+#-----------------------------------------------------------------------------------#
+
 dim(sampleData) # nrow ncol
 summary(sampleData)
 names(sampleData) # a list of colnames
@@ -121,27 +151,17 @@ boxplot(dist_to_transit, horizontal = TRUE, main = "Boxplot: Distance to transit
 summary(dist_to_transit)
 plot(region_type)
 plot(hh_size)
-plot(trip_length_km)
+# TODO
+plot(trip_length_km,
+		 type = "l",
+		 xlab = "Income category",
+		 lab = "Average trip length (km)",
+		 ain = "Trip length distribution by income")
+
 
 
 install.packages("ggplot2")
 library(ggplot2)
-# REPLACE WITH GGPLOT2
-# Trip length distribution by income
-# par(mfrow = c(1,1))
-# plot(distByIncome[,1], type = "l",  lwd = 2, xlab = "Income category", ylab = "Average trip length (km)", main = "Trip length distribution by income")
-# plot(distByIncome[,1], type = "l",  lwd = 2, xlab = "Income category", ylab = "Average trip length (km)", main = "Trip length distribution by income", ylim = c(0,16))
-# ?plot
-# ?par  # shows parameters that can be used with plot() function
-# tripsByIncome <- aggregate(sampleData$weight, by = list(sampleData$income_cat), sum)
-# par(new = TRUE) # to draw a second plot over the previous plot
-# plot(tripsByIncome$x, type = "l", lwd = 2, axes = F, xlab = NA, ylab = NA, col = "orange")
-# axis(side = 4)  # side 1: bottom, 2: left, 3: top and 4: right
-# mtext(side = 4, line = 2.5, text = "Total number of trips")
-# par(xpd = TRUE)
-# legend(x=6, y=-250, legend = c("Average trip length (km)", "Total number of trips"), lty = c(1,1) , lwd = 2, col = c("black", "orange"), bty = "n")
-
-# TODO GGPLOT2 + ADD REFERENCE
 
 # Trip distribution by income across region types
 incomeByRegion <- data.frame(wtd.table(sampleData$income_cat, sampleData$region_type, weights = sampleData$weight))
@@ -173,23 +193,6 @@ library(corrplot)
 corrplot(cor1, method = "number") # number of children and household size are fairly correlated
 
 # Multiple Linear Regression
-
-# WITHOUT WEIGHT?!
-regressionFit1 <- lm(hh_autos~hh_size+hh_income+n_emp+dist_to_transit+region_type, data = sampleData)
-summary(regressionFit1)
-
-# TODO
-# save predictions of the model in the new data frame 
-# together with variable you want to plot against
-predicted_df <- data.frame(hh_autos_pred = predict(regressionFit1, sampleData), hh_size=sampleData$hh_size)
-
-# TODO
-# this is the predicted line of multiple linear regression
-p <- ggplot(data = sampleData, aes(x = hh_size, y = hh_autos)) + 
-	geom_point(color='blue')
-p
-p + geom_line(color='red',data = predicted_df, aes(x=hh_autos_pred, y=hh_size))
-
 regressionFit1 <- lm(hh_autos~hh_size+hh_income+n_emp+dist_to_transit+region_type, data = sampleData, weights = sampleData$weight)
 summary(regressionFit1)
 # n_children instead of hh_size
@@ -206,5 +209,7 @@ summary(regressionFit5)
 regressionFit6 <- lm(hh_autos~hh_size+hh_income+n_emp+dist_to_transit:region_type, data = sampleData, weights = sampleData$weight)
 summary(regressionFit6)
 
-plot(regressionFit1)
+# TODO
+# save predictions of the model in the new data frame together with variable you want to plot against
+predicted_df <- data.frame(hh_autos_pred = predict(regressionFit6, sampleData), hh_size=sampleData$hh_size)
 
