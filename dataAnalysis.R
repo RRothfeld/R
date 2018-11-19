@@ -153,6 +153,9 @@ distByIncomeHHsize <- by(sampleData,
 distByIncomeHHsize <- do.call(cbind, list(distByIncomeHHsize))
 distByIncomeHHsize  # Shows hh_size in columns and income categories in rows
 
+# Extract rows/columns from data.frame via subset
+?subset
+
 # Extract rows/columns from data.frame with dataset[rows,columns]
 extract <- sampleData[5,6] 					# Return 5th row, 6th column
 head(extract)
@@ -189,8 +192,11 @@ plot(region_type)
 plot(hh_size)
 plot(income_cat)
 
-# If necessary: install.packages("ggplot2")
-library(ggplot2)
+# Libraries are add-on packages of code that others have pre-written for a specific purpose
+# If necessary install via code:		install.packages("ggplot2")			
+# or via RStudio "Tools" --> "Install Packages"
+# or via Package viewer --> "Install"
+library(ggplot2)	# Load ggplot2 library (widely used and powerfull visualization package)
 
 ggplot(sampleData, aes(hh_income, trip_length_km, colour = region_type)) + 
 	geom_point()
@@ -215,45 +221,68 @@ ggplot(sampleData, aes(income_cat, trip_length_km, fill = region_type)) +
 
 
 #-----------------------------------------------------------------------------------#
-# Visualizing Data																																	#
+# Regressions																																				#
 #-----------------------------------------------------------------------------------#
 
 # Regression 
 # HH autos = fn(HH size, HH income, Number of workers, Number of children, Distance to transit, Region type)
 
 # Check correlation between independent variables
+cor1 <- cor(subset(sampleData,
+									 select = c("hh_size", "hh_income", "n_emp", "n_children", "dist_to_transit", "region_type")))
 
-cor1 <- cor(subset(sampleData, select = c("hh_size", "hh_income", "n_emp", "n_children", "dist_to_transit", "region_type")))
+head(subset(sampleData,
+						select = c("hh_size", "hh_income", "n_emp", "n_children", "dist_to_transit", "region_type")))
+
 levels(sampleData$region_type)
-sampleData$region_type <- factor(sampleData$region_type, levels = c("metropolitan", "urban", "rural"))
+
 sampleData$region_type <- as.numeric(sampleData$region_type)
-cor1 <- cor(subset(sampleData, select = c("hh_size", "hh_income", "n_emp", "n_children", "dist_to_transit", "region_type")))
+unique(sampleData$region_type)
 
-# Visualizing correlation
+cor1 <- cor(subset(sampleData,
+									 select = c("hh_size", "hh_income", "n_emp", "n_children", "dist_to_transit", "region_type")))
 
-#install.packages("corrplot")
-install.packages("corrplot")
+# If necessary: install.packages("corrplot")
 library(corrplot)
-corrplot(cor1, method = "number") # number of children and household size are fairly correlated
+corrplot(cor1, method = "number")	# Number of children and household size are fairly correlated
 
 # Multiple Linear Regression
-regressionFit1 <- lm(hh_autos~hh_size+hh_income+n_emp+dist_to_transit+region_type, data = sampleData, weights = sampleData$weight)
+regressionFit1 <- lm(hh_autos~hh_size+hh_income+n_emp+dist_to_transit+region_type,
+										 data = sampleData,
+										 weights = sampleData$weight)
 summary(regressionFit1)
+
 # n_children instead of hh_size
-regressionFit2 <- lm(hh_autos~n_children+hh_income+n_emp+dist_to_transit+region_type, data = sampleData, weights = sampleData$weight)
+regressionFit2 <- lm(hh_autos~n_children+hh_income+n_emp+dist_to_transit+region_type,
+										 data = sampleData,
+										 weights = sampleData$weight)
 summary(regressionFit2)
+
 # Transform variables
-regressionFit3 <- lm(hh_autos~hh_size+log(hh_income)+n_emp+dist_to_transit+region_type, data = sampleData, weights = sampleData$weight)
+regressionFit3 <- lm(hh_autos~hh_size+log(hh_income)+n_emp+dist_to_transit+region_type,
+										 data = sampleData,
+										 weights = sampleData$weight)
 summary(regressionFit3)
-regressionFit4 <- lm(hh_autos~hh_size+log(hh_income)+n_emp+I(dist_to_transit^2)+region_type, data = sampleData, weights = sampleData$weight)
+
+regressionFit4 <- lm(hh_autos~hh_size+log(hh_income)+n_emp+I(dist_to_transit^2)+region_type,
+										 data = sampleData,
+										 weights = sampleData$weight)
 summary(regressionFit4)
+?I
+
 # Interaction term
-regressionFit5 <- lm(hh_autos~hh_size+hh_income+n_emp+dist_to_transit*region_type, data = sampleData, weights = sampleData$weight)
+regressionFit5 <- lm(hh_autos~hh_size+hh_income+n_emp+dist_to_transit*region_type, # a*b --> a+b+a:b
+										 data = sampleData,
+										 weights = sampleData$weight)
 summary(regressionFit5)
-regressionFit6 <- lm(hh_autos~hh_size+hh_income+n_emp+dist_to_transit:region_type, data = sampleData, weights = sampleData$weight)
+
+regressionFit6 <- lm(hh_autos~hh_size+hh_income+n_emp+dist_to_transit:region_type, # a:b --> (only) a:b
+										 data = sampleData,
+										 weights = sampleData$weight)
 summary(regressionFit6)
 
-# TODO
-# save predictions of the model in the new data frame together with variable you want to plot against
-predicted_df <- data.frame(hh_autos_pred = predict(regressionFit6, sampleData), hh_size=sampleData$hh_size)
-
+# Save predictions of a model in a new data frame together with variables you want to plot against
+predicted_df <- data.frame(hh_autos_pred = predict(regressionFit6, sampleData),
+													 hh_size=sampleData$hh_size,
+													 hh_income=sampleData$hh_income)
+head(predicted_df)
