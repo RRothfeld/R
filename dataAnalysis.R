@@ -53,7 +53,7 @@ sapply(c(4,-16,64), FUN = abs)
 # Matrices
 ?matrix
 m1 <- matrix(data = 1:20, nrow = 4, ncol = 5)
-m1
+m1 														# Simply calling a variable returns its value in the console
 
 m2 <- rep(1, times=4)
 m2
@@ -90,89 +90,133 @@ write.csv(sampleData, file = "output.csv")
 # Exploring Data																																		#
 #-----------------------------------------------------------------------------------#
 
-dim(sampleData) # nrow ncol
-summary(sampleData)
-names(sampleData) # a list of colnames
-# TODO rename
-head(sampleData) # first 6 rows of the dataset
-str(sampleData) # data types of each column along with the first 10 entries
+View(sampleData)		# Open data viewer with sampleData
 
-sampleData$hh_size
+nrow(sampleData)		# Number of rows
+ncol(sampleData)		# Number of columns
+dim(sampleData) 		# Size of data.frame
+summary(sampleData)	# Quick summary (mean, median, range, ...) of data.frame
 
-table(sampleData$hh_size) # frequency
-summary(sampleData$hh_size) # statistical distribution
-prop.table(table(sampleData$hh_size)) # share of the total
+str(sampleData) 		# data types of each column along with the first 10 entries
+names(sampleData) 	# Lists column-names
+head(sampleData) 		# Returns first 6 rows of the dataset (always use with large datasets)
 
-unique(sampleData$hh_size) # return unique values
+sampleData$hh_size 	# Returns a column of a dataset (dataset$column)
+
+table(sampleData$hh_size) 						# Frequency table
+summary(sampleData$hh_size) 					# Statistical distribution
+prop.table(table(sampleData$hh_size)) # Share of the total
+
+unique(sampleData$hh_size) 						# Returns only unique values (removes dublicates)
 unique(sampleData$region_type)
-class(sampleData$region_type)
-sampleData$region_type <- factor(sampleData$region_type, levels = c("metropolitan","urban","rural"))  # set the order of variables
+class(sampleData$region_type)					# Factor means categorical data, i.e. limited number of different values
 str(sampleData$region_type)
-table(sampleData$region_type)
+prop.table(table(sampleData$region_type))
 
-tapply(sampleData$hh_size, sampleData$region_typ, mean) # mean houehold size by region type
+sampleData$region_type <- factor(sampleData$region_type,
+																 levels = c("metropolitan","urban","rural"))	# Set the order of variables
+prop.table(table(sampleData$region_type))
 
-# Example: Compute average trip length by income
+tapply(sampleData$hh_size, sampleData$region_typ, mean)					# Mean houehold size by region type
+tapply(sampleData$trip_length_km, sampleData$region_typ, sum)		# Sum of trip length by region type
 
+# Example: Compute average trip length by income category
 summary(sampleData$hh_income)
-# Let's add a new column with income categories
-sampleData$income_cat <- cut(sampleData$hh_income, breaks = c(seq(0,7000,by=1000),10000), labels = 1:8) # create income categories
+sampleData$income_cat <- cut(sampleData$hh_income,                  # Add column with dataset$new-column
+														 breaks = c(seq(0,5000,by=2500),10000), # What will the breaks be?
+														 labels = c("low", "medium", "high")) 	# What ranges does each level cover?
 str(sampleData$income_cat)
-summary(sampleData)
-sum(is.na(sampleData$income_cat)==TRUE) # check if there are any N/A variables in your dataset
+summary(sampleData$income_cat)
+sum(is.na(sampleData$income_cat)==TRUE)															# Check if there are any N/A values
 
-aggregate(sampleData$trip_length_km, by = list(sampleData$income_cat), mean)
+aggregate(sampleData$trip_length_km,                                # Input data/column
+					by = list(sampleData$income_cat),                         # Aggregate by list of columns (here only one)
+					mean)                                                     # Aggregative function
 ?aggregate
+
 # For weighted analysis
-distByIncome <- by(sampleData, sampleData$income_cat, function(x) weighted.mean(x$trip_length_km, x$weight))
+distByIncome <- by(sampleData,
+									 sampleData$income_cat,
+									 function(x) weighted.mean(x$trip_length_km, x$weight))
 distByIncome
+
 distByIncome <- do.call(cbind, list(distByIncome))
-#distByIncome <- cbind(distByIncome)  # make it more readable
 distByIncome
+
+colnames(distByIncome) <- c("Average Distance per Income Group [km]")
+distByIncome
+
 # Analyze by two variables
-distByIncomeHHsize <- by(sampleData, list(sampleData$income_cat, sampleData$hh_size), function(x) weighted.mean(x$trip_length_km, x$weight))
+distByIncomeHHsize <- by(sampleData,
+												 list(sampleData$income_cat, sampleData$hh_size),
+												 function(x) weighted.mean(x$trip_length_km, x$weight))
 distByIncomeHHsize <- do.call(cbind, list(distByIncomeHHsize))
-distByIncomeHHsize  # shows hh size in columns and income categories in row
+distByIncomeHHsize  # Shows hh_size in columns and income categories in rows
 
-# TODO DATA:TABLE + ADD REFERENCE
+# Extract rows/columns from data.frame with dataset[rows,columns]
+extract <- sampleData[5,6] 					# Return 5th row, 6th column
+head(extract)
 
-####### --------------- VISUALIZING DATA --------------------- #######
+extract <- sampleData[5:10,1:3] 		# Return rows 5 to 10, columns 1 to 3
+head(extract)
 
-# install.packages("questionr")
-# library(questionr)
+extract <- sampleData[1:5,] 				# Return rows 1 to 5, all columns
+head(extract)												# How could all rows be returned for specific columns?
 
-attach(sampleData)
-#search()
+extract <- sampleData[sampleData$hh_size == 2,] 		# Return all rows where condition is TRUE
+head(extract)
+
+extract <- sampleData[,c("hh_size", "n_children")]
+head(extract)
+
+extract <- sampleData[sampleData$hh_size == 2, c("hh_size", "n_children")]
+head(extract)
+
+#-----------------------------------------------------------------------------------#
+# Visualizing Data																																	#
+#-----------------------------------------------------------------------------------#
+
+attach(sampleData)	# Makes sampleData available in global environment, i.e. its
+ 										# columns/rows can be accessed directly; use sparingly
+search()
+
 hist(hh_income, main = "Frequency distribution: Household income", xlab = "Montly household income (Euro)")
 hist(trip_length_km, main = "Frequency distribution: Distance to work", xlab = "Distance from home to work location (km)")
 hist(dist_to_transit, main = "Frequency distribution: Distance to transit", xlab = "Distance from home location to nearest transit stop (km)")
 par(mfrow = c(2,2))
 boxplot(dist_to_transit, horizontal = TRUE, main = "Boxplot: Distance to transit", xlab = "Distance from home location to nearest transit stop (km)")
-summary(dist_to_transit)
 plot(region_type)
 plot(hh_size)
-# TODO
-plot(trip_length_km,
-		 type = "l",
-		 xlab = "Income category",
-		 lab = "Average trip length (km)",
-		 ain = "Trip length distribution by income")
+plot(income_cat)
 
-
-
-install.packages("ggplot2")
+# If necessary: install.packages("ggplot2")
 library(ggplot2)
 
-# Trip distribution by income across region types
-incomeByRegion <- data.frame(wtd.table(sampleData$income_cat, sampleData$region_type, weights = sampleData$weight))
-names(incomeByRegion) <- c("incomeCat", "regionType", "Trips")
-str(incomeByRegion)
-levels(incomeByRegion$regionType)
-incomeByRegion$regionType <- factor(incomeByRegion$regionType, levels = c("metropolitan", "urban", "rural"))
-ggplot() + geom_area(aes(y = Trips, x = incomeCat, group = regionType, fill = regionType), data = incomeByRegion) + ggtile("Trip Distribution By Income Category")
+ggplot(sampleData, aes(hh_income, trip_length_km, colour = region_type)) + 
+	geom_point()
+
+ggplot(sampleData, aes(hh_income, trip_length_km, colour = income_cat)) + 
+	geom_point()
+
+ggplot(sampleData, aes(income_cat, trip_length_km, fill = region_type)) + 
+	geom_col()
+
+ggplot(sampleData, aes(income_cat, trip_length_km, fill = region_type)) + 
+	geom_col() +
+	scale_fill_brewer(palette = "Reds") +
+	labs(title = "BIG TITLE", x = "x axis", y = "y axis")
+
+ggplot(sampleData, aes(income_cat, trip_length_km)) + 
+	geom_col() +
+	facet_grid(. ~ region_type)
+
+ggplot(sampleData, aes(income_cat, trip_length_km, fill = region_type)) + 
+	geom_boxplot()
 
 
-####### --------------- MODELING DATA --------------------- #######
+#-----------------------------------------------------------------------------------#
+# Visualizing Data																																	#
+#-----------------------------------------------------------------------------------#
 
 # Regression 
 # HH autos = fn(HH size, HH income, Number of workers, Number of children, Distance to transit, Region type)
