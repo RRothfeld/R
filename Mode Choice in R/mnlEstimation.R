@@ -153,8 +153,11 @@ logit_test_data$transit <- ifelse(logit_test_data$alt=="transit",1,0)
 predict(mnl_fit5, newdata = logit_test_data, weights = weight)
 
 # Compare aggregated predictions
-test <- apply(predict(mnl_fit5, newdata = logit_test_data), 2, weighted.mean, w=test_data$weight) # Predicted shares
-compare_fits <- cbind(compare_fits, test)
+test_predicted <- apply(predict(mnl_fit5, newdata = logit_test_data), 2, weighted.mean, w=test_data$weight) # Predicted shares
+compare_fits <- cbind(compare_fits, test_predicted)
+test_actual <- prop.table(wtd.table(test_data$mode, weights = test_data$weight)) # Observed shares
+compare_fits <- cbind(compare_fits, test_actual)
+
 compare_fits
 
 # Plot comparison
