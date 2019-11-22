@@ -1,7 +1,7 @@
 #####################################################################################
 # MODE CHOICE IN R - MNL ESTIMATION
 #-----------------------------------------------------------------------------------#
-# 07. January 2019
+# 02. December 2019
 #	
 # Raoul Rothfeld
 # Based on Material from Hema Sharanya Rayaprolu
@@ -11,11 +11,11 @@
 # Install and load packages
 #-----------------------------------------------------------------------------------#
 
-install.packages("mlogit")
+#install.packages("mlogit") if necessary
 library(mlogit)
-install.packages("questionr")
+#install.packages("questionr") if necessary
 library(questionr)
-install.packages("corrplot")
+#install.packages("corrplot") if necessary
 library(corrplot)
 
 
@@ -30,7 +30,7 @@ summary(fit_data)
 
 
 #-----------------------------------------------------------------------------------#
-# Check for variable correlations and manioulate data format
+# Check for variable correlations and manipulate data format
 #-----------------------------------------------------------------------------------#
 
 my_cormtx <- cor(fit_data[,2:7]) # Computes correlation matrix

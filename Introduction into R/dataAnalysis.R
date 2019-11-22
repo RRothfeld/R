@@ -1,15 +1,14 @@
-
 #####################################################################################
-# INTRODUCTION INTO R - DATA ANALYSIS												#
+# INTRODUCTION INTO R - DATA ANALYSIS
 #-----------------------------------------------------------------------------------#
-# 19. November 2018																	#
-#																					#
-# Raoul Rothfeld																	#
-# Based on Material from Hema Sharanya Rayaprolu									#
+# 25. November 2019
+#	
+# Raoul Rothfeld
+# Based on Material from Hema Sharanya Rayaprolu 
 #####################################################################################
 
 #-----------------------------------------------------------------------------------#
-# Basic Operations																	#
+# Basic Operations
 #-----------------------------------------------------------------------------------#
 
 # Setting up working directory/workspace
@@ -20,23 +19,23 @@ getwd()
 
 # Operations, variables, and Vectors (atomic vectors, lists)
 4+6
-a <- 5+7							# Store results in variables
+a <- 5+7							        # Store results in variables
 b <- 1:20
 c <- seq(0, 20,  by = 2) 			# Returns sequence of numbers from 0 to 20 incremented by 2
-d <- seq(0, 10, length = 5) 		# Returns 5 equidistant numbers between 0 and 10
+d <- seq(0, 10, length = 5) 	# Returns 5 equidistant numbers between 0 and 10
 e <- rep(1, times = 5)				# Five times repetition of number 1
 
-f <- c(1,5,6,8.5)  					# Returns an atomic (homogenous) vector, despite input of
-# integer and double numbers; c is short for concatenate
-# or combine
+f <- c(1,5,6,8.5)  					  # Returns an atomic (homogenous) vector, despite input of
+                              # integer and double numbers; c is short for concatenate
+                              # or combine
 
-c(1,5,"6",8.5)						# What kind of atomic vector will be returned?
+c(1,5,"6",8.5)						    # What kind of atomic vector will be returned?
 
 g <- rep(f, times = 2)				# Access values via variables
 h <- rep(f, each = 2) 				# Repeats each value twice
 
 i <- c("one","two","three")
-str(i)								# Returns the structure of a variable/object
+str(i)								        # Returns the structure of a variable/object
 j <- list(TRUE, FALSE, TRUE)
 str(j)
 
@@ -57,7 +56,7 @@ sapply(c(4,-16,64), FUN = abs)
 # Matrices
 ?matrix
 m1 <- matrix(data = 1:20, nrow = 4, ncol = 5)
-m1 					# Simply calling a variable returns its value in the console
+m1 					        # Simply calling a variable returns its value in the console
 
 m2 <- rep(1, times=4)
 m2
@@ -75,7 +74,7 @@ m5 <- rbind(m1,m4) 	# Row-bind
 m5
 
 # Environment commands
-ls() 				# A list of all the objects in the workspace
+ls() 				       # A list of all the objects in the workspace
 rm(a)
 ls()
 rm(list = ls()) 	# Removes all workspace objects, i.e. clears memory
@@ -91,19 +90,19 @@ write.csv(sampleData, file = "output.csv")
 
 
 #-----------------------------------------------------------------------------------#
-# Exploring Data																	#
+# Exploring Data
 #-----------------------------------------------------------------------------------#
 
-View(sampleData)	# Open data viewer with sampleData
+View(sampleData)	  # Open data viewer with sampleData
 
-nrow(sampleData)	# Number of rows
-ncol(sampleData)	# Number of columns
-dim(sampleData) 	# Size of data.frame
+nrow(sampleData)	  # Number of rows
+ncol(sampleData)	  # Number of columns
+dim(sampleData) 	  # Size of data.frame
 summary(sampleData)	# Quick summary (mean, median, range, ...) of data.frame
 
-str(sampleData) 	# data types of each column along with the first 10 entries
+str(sampleData) 	  # data types of each column along with the first 10 entries
 names(sampleData) 	# Lists column-names
-head(sampleData) 	# Returns first 6 rows of the dataset (always use with large datasets)
+head(sampleData) 	  # Returns first 6 rows of the dataset (always use with large datasets)
 
 sampleData$hh_size 	# Returns a column of a dataset (dataset$column)
 
@@ -112,33 +111,21 @@ summary(sampleData$hh_size) 	# Statistical distribution
 prop.table(table(sampleData$hh_size)) # Share of the total
 
 unique(sampleData$hh_size) 		# Returns only unique values (removes dublicates)
-unique(sampleData$region_type)
-class(sampleData$region_type)	# Factor means categorical data, i.e. limited number of different values
-str(sampleData$region_type)
-prop.table(table(sampleData$region_type))
-
-# Set the order of variables
-sampleData$region_type <- factor(sampleData$region_type,
-								 levels = c("metropolitan","urban","rural"))
-prop.table(table(sampleData$region_type))
-
-tapply(sampleData$hh_size, sampleData$region_typ, mean)			# Mean houehold size by region type
-tapply(sampleData$trip_length_km, sampleData$region_typ, sum)	# Sum of trip length by region type
 
 # Example: Compute average trip length by income category
 summary(sampleData$hh_income)
 
 ncol(sampleData)
-sampleData$income_cat <- cut(sampleData$hh_income,                  # Add column with dataset$new-column
+sampleData$income_cat <- cut(sampleData$hh_income,    # Add column with dataset$new-column
 							 breaks = c(seq(0,5000,by=2500),10000), # What will the breaks be?
 							 labels = c("low", "medium", "high")) 	# What ranges does each level cover?
 ncol(sampleData)
 
 str(sampleData$income_cat)
 summary(sampleData$income_cat)
-sum(is.na(sampleData$income_cat)==TRUE)		  # Check if there are any N/A values
+sum(is.na(sampleData$income_cat)==TRUE)		# Check if there are any N/A values
 
-aggregate(sampleData$trip_length_km,          # Input data/column
+aggregate(sampleData$trip_length_km,      # Input data/column
 		  by = list(sampleData$income_cat),   # Aggregate by list of columns (here only one)
 		  mean)                               # Aggregative function
 ?aggregate
@@ -149,17 +136,11 @@ distByIncome <- by(sampleData,
 				   function(x) weighted.mean(x$trip_length_km, x$weight))
 distByIncome
 
-distByIncome <- do.call(cbind, list(distByIncome))
-distByIncome
-
-colnames(distByIncome) <- c("Average Distance per Income Group [km]")
-distByIncome
-
 # Analyze by two variables
 distByIncomeHHsize <- by(sampleData,
 						 list(sampleData$income_cat, sampleData$hh_size),
 						 function(x) weighted.mean(x$trip_length_km, x$weight))
-distByIncomeHHsize <- do.call(cbind, list(distByIncomeHHsize))
+distByIncomeHHsize <- do.call(cbind, list(distByIncomeHHsize)) # beatuify table
 distByIncomeHHsize  # Shows hh_size in columns and income categories in rows
 
 # Extract rows/columns from data.frame via subset
@@ -169,11 +150,11 @@ distByIncomeHHsize  # Shows hh_size in columns and income categories in rows
 extract <- sampleData[5,6] 				# Return 5th row, 6th column
 head(extract)
 
-extract <- sampleData[5:10,1:3] 		# Return rows 5 to 10, columns 1 to 3
+extract <- sampleData[5:10,1:3] 	# Return rows 5 to 10, columns 1 to 3
 head(extract)
 
 extract <- sampleData[1:5,] 			# Return rows 1 to 5, all columns
-head(extract)							# How could all rows be returned for specific columns?
+head(extract)							        # How could all rows be returned for specific columns?
 
 extract <- sampleData[sampleData$hh_size == 2,] # Return all rows where condition is TRUE
 head(extract)
@@ -185,11 +166,11 @@ extract <- sampleData[sampleData$hh_size == 2, c("hh_size", "n_children")]
 head(extract)
 
 #-----------------------------------------------------------------------------------#
-# Visualizing Data																	#
+# Visualizing Data
 #-----------------------------------------------------------------------------------#
 
 attach(sampleData)	# Makes sampleData available in global environment, i.e. its
-# columns/rows can be accessed directly; use sparingly
+                    # columns/rows can be accessed directly; use sparingly
 search()
 
 hist(hh_income,
@@ -241,7 +222,7 @@ ggplot(sampleData, aes(income_cat, trip_length_km, fill = region_type)) +
 
 
 #-----------------------------------------------------------------------------------#
-# Regressions																		#
+# Regressions
 #-----------------------------------------------------------------------------------#
 
 # Regression 
@@ -314,3 +295,4 @@ predicted_df <- data.frame(hh_autos_pred = predict(regressionFit6, sampleData),
 						   hh_income=sampleData$hh_income,
 						   n_emp=sampleData$n_emp)
 head(predicted_df)
+
