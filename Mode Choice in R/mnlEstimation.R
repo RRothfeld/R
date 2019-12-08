@@ -57,6 +57,8 @@ mnl_fit0 <- mlogit(mode ~ ttime | age+gender+income+hh_size+auto_avail+bike_avai
                    data = logit_data,
                    weights = weight)
 summary(mnl_fit0)
+# See mlogit.pdf for log-likelihood explanation.
+# See https://stats.stackexchange.com/questions/82105/mcfaddens-pseudo-r2-interpretation for McFadden R^2 explanation.
 
 # Model with different travel time coefficient for different modes
 mnl_fit1 <- mlogit(mode ~ 0 
@@ -121,6 +123,11 @@ mnl_fit5 <- mlogit(mode ~ I(bike*gender)
                    data = logit_data,
                    weights = weight)
 summary(mnl_fit5)
+
+# compare models
+for (i in 0:5) {
+  print(paste("MNL #", i, " log likelihood: ", logLik(get(paste("mnl_fit",i,sep=""))), sep = ""))
+}
 
 # Show coeeficients in table form
 mnl_coeff <- data.frame(coefficients(mnl_fit5))
